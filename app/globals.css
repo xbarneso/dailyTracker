@@ -1,0 +1,13 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-inter: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+body {
+  background-color: #f0f9f4;
+  color: #1a3e29;
+  font-family: var(--font-inter);
+}
