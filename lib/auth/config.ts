@@ -60,14 +60,14 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt(token, user) {
       if (user) {
         token.id = user.id
         token.email = user.email
       }
       return token
     },
-    async session({ session, token }) {
+    async session(session, token) {
       // Simplified session callback - always return valid object
       if (!session) {
         return {
