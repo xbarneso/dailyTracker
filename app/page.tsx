@@ -1,13 +1,12 @@
-import { redirect } from 'next/navigation'
-
-export default async function Home() {
-  // Always redirect to login for now - session check disabled
-  // TODO: Re-enable session check once working
-  redirect('/login')
-
-  if (session) {
-    redirect('/dashboard')
-  } else {
-    redirect('/login')
+export default function Home() {
+  // Redirect handled on client side
+  if (typeof window !== 'undefined') {
+    window.location.href = '/login'
   }
+  
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-jungle-50">
+      <div className="text-jungle-600 text-lg">Redirigiendo...</div>
+    </div>
+  )
 }
