@@ -24,7 +24,7 @@ export const authOptions: NextAuthOptions = {
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" },
       },
-      async authorize(credentials) {
+      async authorize(credentials: Record<string, string> | undefined) {
         console.log('[NextAuth] authorize called')
         console.log('[NextAuth] credentials:', credentials ? JSON.stringify({ email: credentials.email, hasPassword: !!credentials.password }) : 'null')
         
