@@ -95,8 +95,6 @@ export const authOptions: NextAuthOptions = {
     signIn: "/login",
     error: "/api/auth/error",
   },
-  session: {
-    strategy: "jwt",
-  },
+  // NextAuth v3 uses JWT by default - no need to specify strategy
   debug: process.env.NODE_ENV === 'development',
 }
