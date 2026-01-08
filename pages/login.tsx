@@ -32,8 +32,11 @@ export default function LoginPage() {
         console.log('[Login] Sign in error:', result.error)
         setError(`Error: ${result.error}`)
       } else if (result?.ok) {
-        console.log('[Login] Sign in successful, redirecting...')
-        router.push('/dashboard')
+        // Store email in cookie for API routes to use as fallback
+        document.cookie = `next-auth.user-email=${email}; path=/; max-age=2592000` // 30 days
+        
+        // Redirect to dashboard
+        window.location.href = '/dashboard'
       } else {
         console.log('[Login] Unexpected result:', result)
         setError('Error inesperado al iniciar sesión')

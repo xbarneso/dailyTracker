@@ -1,12 +1,9 @@
 'use client'
 
 import { useState } from 'react'
-import { signIn } from 'next-auth/react'
-import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 
 export default function LoginPage() {
-  const router = useRouter()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -18,21 +15,38 @@ export default function LoginPage() {
     setLoading(true)
 
     try {
-      const result = await signIn('credentials', {
-        email,
-        password,
-        redirect: false,
+      const csrfRes = await fetch('/api/auth/csrf')
+      const csrfData = await csrfRes.json()
+      const csrfToken = csrfData.csrfToken
+
+      const formData = new URLSearchParams()
+      formData.append('email', email)
+      formData.append('password', password)
+      formData.append('csrfToken', csrfToken)
+      formData.append('callbackUrl', '/dashboard')
+      formData.append('redirect', 'false')
+      formData.append('json', 'true')
+
+      const response = await fetch('/api/auth/signin/credentials', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: formData,
+        credentials: 'include',
       })
 
-      if (result?.error) {
+      const result = await response.json()
+
+      if (result.error) {
         setError('Credenciales inválidas')
+        setLoading(false)
+      } else if (result.ok) {
+        window.location.href = '/dashboard'
       } else {
-        router.push('/dashboard')
-        router.refresh()
+        setError('Error al iniciar sesión')
+        setLoading(false)
       }
     } catch (err) {
       setError('Error al iniciar sesión')
-    } finally {
       setLoading(false)
     }
   }
@@ -87,9 +101,9 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-jungle-600 text-white py-3 rounded-lg font-semibold hover:bg-jungle-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-jungle-600 text-white py-3 rounded-lg font-semibold hover:bg-jungle-700 transition disabled:opacity-50"
             >
-              {loading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
+              {loading ? 'Iniciando...' : 'Iniciar Sesión'}
             </button>
           </form>
 
@@ -106,4 +120,3 @@ export default function LoginPage() {
     </div>
   )
 }
-

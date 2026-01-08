@@ -25,6 +25,23 @@ export async function createUser(email: string, password: string) {
   return { id: user._id.toString(), email }
 }
 
+export async function getUserByEmail(email: string) {
+  try {
+    const db = await getDb()
+    const users = db.collection('users')
+    
+    const user = await users.findOne({ email })
+    if (!user) {
+      return null
+    }
+    
+    return { id: user._id.toString(), email: user.email }
+  } catch (error: any) {
+    console.error('Error getting user by email:', error)
+    return null
+  }
+}
+
 export async function verifyUser(email: string, password: string) {
   try {
     const db = await getDb()

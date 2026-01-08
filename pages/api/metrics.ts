@@ -1,23 +1,56 @@
 import { NextApiRequest, NextApiResponse } from 'next'
-import { getServerSession } from 'next-auth/next'
+import { getToken } from 'next-auth/jwt'
 import { authOptions } from '../../lib/auth/config'
 import { getHabits } from '../../lib/db/habits'
 import { getCompletions } from '../../lib/db/completions'
 import { getTodayDate, getDateRange } from '../../lib/utils'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const session = await getServerSession(req, res, authOptions)
+  const token = await getToken({ 
+    req,
+    secret: authOptions.secret 
+  })
   
-  if (!session?.user?.id) {
+  // If token doesn't have id, get user ID from email by querying database
+  let userId = token?.id as string | undefined
+  let userEmail = token?.email as string | undefined
+  
+  // Fallback: get email from cookie if token doesn't have it
+  if (!userEmail && req.headers.cookie) {
+    const emailMatch = req.headers.cookie.match(/next-auth\.user-email=([^;]+)/)
+    if (emailMatch) {
+      userEmail = decodeURIComponent(emailMatch[1])
+      console.log('[metrics] Got email from cookie:', userEmail)
+    }
+  }
+  
+  if (!userId && userEmail) {
+    // Fallback: get user ID from email
+    try {
+      console.log('[metrics] Looking up user by email:', userEmail)
+      const { getUserByEmail } = await import('../../lib/auth/mongodb')
+      const dbUser = await getUserByEmail(userEmail)
+      if (dbUser) {
+        userId = dbUser.id
+        console.log('[metrics] Found user ID:', userId)
+      }
+    } catch (err) {
+      console.error('[metrics] Error getting user by email:', err)
+    }
+  }
+  
+  if (!userId) {
+    console.log('[metrics] Unauthorized - no userId found')
     return res.status(401).json({ error: 'Unauthorized' })
   }
+  
+  console.log('[metrics] Authorized with userId:', userId)
 
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Method not allowed' })
   }
 
   try {
-    const userId = session.user.id
     const today = getTodayDate()
 
     // Get all habits
@@ -74,6 +107,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // Habits by frequency
     const habitsByFrequency = {
       daily: habits.filter(h => h.frequency === 'daily').length,
+      once: habits.filter(h => h.frequency === 'once').length,
       weekly: habits.filter(h => h.frequency === 'weekly').length,
       monthly: habits.filter(h => h.frequency === 'monthly').length,
     }

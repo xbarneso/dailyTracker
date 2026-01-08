@@ -2,18 +2,21 @@ import { NextAuthOptions } from "next-auth"
 import { verifyUser } from "./mongodb"
 
 // NextAuth v3 - Credentials provider implementation
+// In NextAuth v3, we need to create our own provider
 function CredentialsProvider(options: any) {
   return {
     id: "credentials",
     name: options.name || "Credentials",
     type: "credentials",
     credentials: options.credentials || {},
-    authorize: options.authorize,
+    authorize: options.authorize, // Use the authorize function directly, don't wrap it
   }
 }
 
 export const authOptions: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET || 'daily-tracker-secret-key-2024-change-in-production',
+  // Removed explicit cookie configuration - let NextAuth use defaults
+  // This should fix cookie issues in NextAuth v3
   providers: [
     CredentialsProvider({
       name: "Credentials",
@@ -41,12 +44,11 @@ export const authOptions: NextAuthOptions = {
             return null
           }
 
-          const userObj = {
+          // Return a simple plain object
+          return {
             id: user.id,
             email: user.email,
           }
-          console.log('[NextAuth] Returning user object:', userObj)
-          return userObj
         } catch (error: any) {
           console.error('[NextAuth] ERROR in authorize:', error)
           console.error('[NextAuth] Error message:', error.message)
@@ -59,16 +61,11 @@ export const authOptions: NextAuthOptions = {
   ],
   callbacks: {
     async jwt({ token, user }) {
-      try {
-        if (user) {
-          token.id = user.id
-          token.email = user.email
-        }
-        return token
-      } catch (error: any) {
-        console.error('[NextAuth] Error in jwt callback:', error)
-        return token || {}
+      if (user) {
+        token.id = user.id
+        token.email = user.email
       }
+      return token
     },
     async session({ session, token }) {
       // Simplified session callback - always return valid object

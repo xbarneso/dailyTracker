@@ -7,8 +7,13 @@ export interface Habit {
   user_id: string
   name: string
   description?: string
-  frequency: 'daily' | 'weekly' | 'monthly'
+  frequency: 'daily' | 'weekly' | 'monthly' | 'once'
   target_days?: number
+  all_day?: boolean
+  start_time?: string // HH:MM format
+  end_time?: string // HH:MM format
+  icon?: string // Emoji icon
+  category?: 'desarrollo_personal' | 'deporte' | 'salud'
   created_at?: Date
   updated_at?: Date
 }

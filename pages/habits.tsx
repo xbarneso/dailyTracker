@@ -1,72 +1,22 @@
 import { useEffect, useState } from 'react'
-import dynamic from 'next/dynamic'
 import Navbar from '../components/layout/Navbar'
 import HabitCard from '../components/habits/HabitCard'
 import HabitForm from '../components/habits/HabitForm'
-import { getTodayDate } from '../lib/utils'
 import { Habit } from '../types'
 
-// Importar dinámicamente el componente de gráfico para evitar problemas de SSR
-const CategoryRadarChart = dynamic(() => import('../components/charts/CategoryRadarChart'), {
-  ssr: false,
-  loading: () => <div className="flex items-center justify-center h-full"><div className="text-jungle-600">Cargando gráfico...</div></div>
-})
-
-export default function DashboardPage() {
-  // const { data: session, status } = useSession()
-  // const router = useRouter()
+export default function HabitsPage() {
   const [habits, setHabits] = useState<Habit[]>([])
   const [completions, setCompletions] = useState<Record<string, boolean>>({})
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
   const [editingHabit, setEditingHabit] = useState<Habit | null>(null)
-  const [metrics, setMetrics] = useState({
-    total_habits: 0,
-    completed_today: 0,
-    completion_rate: 0,
-  })
-  const [categoryStats, setCategoryStats] = useState({
-    desarrollo_personal: 0,
-    deporte: 0,
-    salud: 0,
-  })
+  const [filter, setFilter] = useState<'all' | 'daily' | 'once' | 'weekly' | 'monthly'>('all')
+  const [categoryFilter, setCategoryFilter] = useState<'all' | 'desarrollo_personal' | 'deporte' | 'salud'>('all')
 
   useEffect(() => {
-    // Session check disabled temporarily
-    // if (status === 'loading') return
-    // if (!session) {
-    //   router.push('/login')
-    //   return
-    // }
     fetchHabits()
     fetchCompletions()
-    fetchMetrics()
   }, [])
-  
-  // Auto-open form if no habits exist
-  useEffect(() => {
-    if (!loading && habits.length === 0 && !showForm) {
-      setShowForm(true)
-    }
-  }, [loading, habits.length, showForm])
-
-  // Calculate category stats when habits or completions change
-  useEffect(() => {
-    const stats = {
-      desarrollo_personal: 0,
-      deporte: 0,
-      salud: 0,
-    }
-
-    todayHabits.forEach((habit) => {
-      const category = habit.category || 'desarrollo_personal'
-      if (completions[habit.id]) {
-        stats[category] = (stats[category] || 0) + 1
-      }
-    })
-
-    setCategoryStats(stats)
-  }, [habits, completions])
 
   const fetchHabits = async () => {
     try {
@@ -74,16 +24,11 @@ export default function DashboardPage() {
         credentials: 'include',
       })
       const data = await res.json()
-      console.log('[Dashboard] Habits response:', data)
       if (data.habits) {
-        console.log('[Dashboard] Setting habits:', data.habits.length, 'habits')
         setHabits(data.habits)
-      } else {
-        console.log('[Dashboard] No habits in response')
-        setHabits([])
       }
     } catch (error) {
-      console.error('[Dashboard] Error fetching habits:', error)
+      console.error('Error fetching habits:', error)
     } finally {
       setLoading(false)
     }
@@ -91,7 +36,7 @@ export default function DashboardPage() {
 
   const fetchCompletions = async () => {
     try {
-      const today = getTodayDate()
+      const today = new Date().toISOString().split('T')[0]
       const res = await fetch(`/api/completions?start_date=${today}&end_date=${today}`, {
         credentials: 'include',
       })
@@ -108,21 +53,6 @@ export default function DashboardPage() {
     }
   }
 
-  const fetchMetrics = async () => {
-    try {
-      const res = await fetch('/api/metrics', {
-        credentials: 'include',
-      })
-      const data = await res.json()
-      console.log('[Dashboard] Metrics response:', data)
-      if (data.metrics) {
-        setMetrics(data.metrics)
-      }
-    } catch (error) {
-      console.error('[Dashboard] Error fetching metrics:', error)
-    }
-  }
-
   const handleToggleComplete = async (habitId: string, completed: boolean) => {
     try {
       if (completed) {
@@ -134,10 +64,9 @@ export default function DashboardPage() {
         })
         if (res.ok) {
           setCompletions((prev) => ({ ...prev, [habitId]: true }))
-          fetchMetrics()
         }
       } else {
-        const today = getTodayDate()
+        const today = new Date().toISOString().split('T')[0]
         const completion = await fetch(`/api/completions?habit_id=${habitId}&start_date=${today}&end_date=${today}`, {
           credentials: 'include',
         })
@@ -153,7 +82,6 @@ export default function DashboardPage() {
               delete newCompletions[habitId]
               return newCompletions
             })
-            fetchMetrics()
           }
         }
       }
@@ -206,7 +134,6 @@ export default function DashboardPage() {
       })
       if (res.ok) {
         fetchHabits()
-        fetchMetrics()
       }
     } catch (error) {
       console.error('Error deleting habit:', error)
@@ -218,25 +145,21 @@ export default function DashboardPage() {
     setShowForm(true)
   }
 
-  // Don't block on session check - allow access for now
-  // if (status === 'loading' || loading) {
-  //   return (
-  //     <div className="min-h-screen bg-jungle-50 flex items-center justify-center">
-  //       <div className="text-jungle-600 text-lg">Cargando...</div>
-  //     </div>
-  //   )
-  // }
-
-  // if (!session) {
-  //   return null
-  // }
-  
-  console.log('[Dashboard] Rendering - loading:', loading, 'habits:', habits.length, 'showForm:', showForm)
-
-  const todayHabits = habits.filter((habit) => {
-    if (habit.frequency === 'daily' || habit.frequency === 'once') return true
+  const filteredHabits = habits.filter((habit) => {
+    // Filter by frequency
+    if (filter !== 'all' && habit.frequency !== filter) return false
+    // Filter by category
+    if (categoryFilter !== 'all' && habit.category !== categoryFilter) return false
     return true
   })
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-jungle-50 flex items-center justify-center">
+        <div className="text-jungle-600 text-lg">Cargando...</div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-jungle-50">
@@ -246,15 +169,10 @@ export default function DashboardPage() {
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
               <h1 className="text-3xl sm:text-4xl font-bold text-jungle-800 mb-2">
-                🌿 Dashboard
+                🌿 Mis Hábitos
               </h1>
               <p className="text-sm sm:text-base text-jungle-600">
-                {new Date().toLocaleDateString('es-ES', {
-                  weekday: 'long',
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric',
-                })}
+                Gestiona todos tus hábitos en un solo lugar
               </p>
             </div>
             <button
@@ -268,41 +186,107 @@ export default function DashboardPage() {
             </button>
           </div>
 
-          {/* Metrics Cards and Radar Chart */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Metrics Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-1 gap-6">
-              <div className="bg-white rounded-xl shadow-md p-4 sm:p-6 border-2 border-jungle-200">
-                <div className="text-2xl sm:text-3xl mb-2">🌱</div>
-                <div className="text-xl sm:text-2xl font-bold text-jungle-800">{metrics.total_habits}</div>
-                <div className="text-sm sm:text-base text-jungle-600">Total Hábitos</div>
-              </div>
-              <div className="bg-white rounded-xl shadow-md p-4 sm:p-6 border-2 border-jungle-200">
-                <div className="text-2xl sm:text-3xl mb-2">✅</div>
-                <div className="text-xl sm:text-2xl font-bold text-jungle-800">{metrics.completed_today}</div>
-                <div className="text-sm sm:text-base text-jungle-600">Completados Hoy</div>
-              </div>
-              <div className="bg-white rounded-xl shadow-md p-4 sm:p-6 border-2 border-jungle-200">
-                <div className="text-2xl sm:text-3xl mb-2">📊</div>
-                <div className="text-xl sm:text-2xl font-bold text-jungle-800">
-                  {Math.round(metrics.completion_rate)}%
-                </div>
-                <div className="text-sm sm:text-base text-jungle-600">Tasa de Completado</div>
-              </div>
+          {/* Category Filter Buttons */}
+          <div>
+            <h3 className="text-sm font-medium text-jungle-700 mb-2">Filtrar por categoría:</h3>
+            <div className="flex gap-2 flex-wrap">
+              <button
+                onClick={() => setCategoryFilter('all')}
+                className={`px-3 sm:px-4 py-2 rounded-lg text-sm sm:text-base font-medium transition ${
+                  categoryFilter === 'all'
+                    ? 'bg-jungle-600 text-white'
+                    : 'bg-white text-jungle-700 hover:bg-jungle-100'
+                }`}
+              >
+                Todas
+              </button>
+              <button
+                onClick={() => setCategoryFilter('desarrollo_personal')}
+                className={`px-3 sm:px-4 py-2 rounded-lg text-sm sm:text-base font-medium transition ${
+                  categoryFilter === 'desarrollo_personal'
+                    ? 'bg-purple-600 text-white'
+                    : 'bg-white text-purple-700 hover:bg-purple-100'
+                }`}
+              >
+                📚 Desarrollo Personal
+              </button>
+              <button
+                onClick={() => setCategoryFilter('deporte')}
+                className={`px-3 sm:px-4 py-2 rounded-lg text-sm sm:text-base font-medium transition ${
+                  categoryFilter === 'deporte'
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-white text-blue-700 hover:bg-blue-100'
+                }`}
+              >
+                💪 Deporte
+              </button>
+              <button
+                onClick={() => setCategoryFilter('salud')}
+                className={`px-3 sm:px-4 py-2 rounded-lg text-sm sm:text-base font-medium transition ${
+                  categoryFilter === 'salud'
+                    ? 'bg-red-600 text-white'
+                    : 'bg-white text-red-700 hover:bg-red-100'
+                }`}
+              >
+                ❤️ Salud
+              </button>
             </div>
+          </div>
 
-            {/* Radar Chart */}
-            <div className="lg:col-span-2 bg-white rounded-xl shadow-md p-6 border-2 border-jungle-200">
-              <h3 className="text-xl sm:text-2xl font-bold text-jungle-800 mb-4">
-                Hábitos Completados por Categoría
-              </h3>
-              <div className="h-64 sm:h-80">
-                <CategoryRadarChart
-                  desarrolloPersonal={categoryStats.desarrollo_personal}
-                  deporte={categoryStats.deporte}
-                  salud={categoryStats.salud}
-                />
-              </div>
+          {/* Frequency Filter Buttons */}
+          <div>
+            <h3 className="text-sm font-medium text-jungle-700 mb-2">Filtrar por frecuencia:</h3>
+            <div className="flex gap-2 flex-wrap">
+              <button
+                onClick={() => setFilter('all')}
+                className={`px-3 sm:px-4 py-2 rounded-lg text-sm sm:text-base font-medium transition ${
+                  filter === 'all'
+                    ? 'bg-jungle-600 text-white'
+                    : 'bg-white text-jungle-700 hover:bg-jungle-100'
+                }`}
+              >
+                Todas
+              </button>
+              <button
+                onClick={() => setFilter('daily')}
+                className={`px-3 sm:px-4 py-2 rounded-lg text-sm sm:text-base font-medium transition ${
+                  filter === 'daily'
+                    ? 'bg-jungle-600 text-white'
+                    : 'bg-white text-jungle-700 hover:bg-jungle-100'
+                }`}
+              >
+                🌱 Diarios
+              </button>
+              <button
+                onClick={() => setFilter('once')}
+                className={`px-3 sm:px-4 py-2 rounded-lg text-sm sm:text-base font-medium transition ${
+                  filter === 'once'
+                    ? 'bg-jungle-600 text-white'
+                    : 'bg-white text-jungle-700 hover:bg-jungle-100'
+                }`}
+              >
+                ⏰ Sólo Hoy
+              </button>
+              <button
+                onClick={() => setFilter('weekly')}
+                className={`px-3 sm:px-4 py-2 rounded-lg text-sm sm:text-base font-medium transition ${
+                  filter === 'weekly'
+                    ? 'bg-jungle-600 text-white'
+                    : 'bg-white text-jungle-700 hover:bg-jungle-100'
+                }`}
+              >
+                🌿 Semanales
+              </button>
+              <button
+                onClick={() => setFilter('monthly')}
+                className={`px-3 sm:px-4 py-2 rounded-lg text-sm sm:text-base font-medium transition ${
+                  filter === 'monthly'
+                    ? 'bg-jungle-600 text-white'
+                    : 'bg-white text-jungle-700 hover:bg-jungle-100'
+                }`}
+              >
+                🌳 Mensuales
+              </button>
             </div>
           </div>
 
@@ -327,12 +311,19 @@ export default function DashboardPage() {
 
           {/* Habits List */}
           <div>
-            <h2 className="text-2xl font-bold text-jungle-800 mb-4">Hábitos de Hoy</h2>
-            {todayHabits.length === 0 ? (
+            {filteredHabits.length === 0 ? (
               <div className="bg-white rounded-xl shadow-md p-12 text-center border-2 border-jungle-200">
                 <div className="text-6xl mb-4">🌿</div>
                 <p className="text-jungle-600 text-lg mb-4">
-                  No tienes hábitos configurados aún
+                  {filter === 'all'
+                    ? 'No tienes hábitos configurados aún'
+                    : filter === 'daily'
+                    ? 'No tienes hábitos diarios'
+                    : filter === 'once'
+                    ? 'No tienes hábitos de "sólo hoy"'
+                    : filter === 'weekly'
+                    ? 'No tienes hábitos semanales'
+                    : 'No tienes hábitos mensuales'}
                 </p>
                 <button
                   onClick={() => setShowForm(true)}
@@ -343,7 +334,7 @@ export default function DashboardPage() {
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {todayHabits.map((habit) => (
+                {filteredHabits.map((habit) => (
                   <HabitCard
                     key={habit.id}
                     habit={habit}

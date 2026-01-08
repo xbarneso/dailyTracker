@@ -1,12 +1,39 @@
 import { NextApiRequest, NextApiResponse } from 'next'
-import { getServerSession } from 'next-auth/next'
+import { getToken } from 'next-auth/jwt'
 import { authOptions } from '../../../../lib/auth/config'
 import { deleteCompletion } from '../../../../lib/db/completions'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const session = await getServerSession(req, res, authOptions)
+  const token = await getToken({ 
+    req,
+    secret: authOptions.secret 
+  })
   
-  if (!session?.user?.id) {
+  // If token doesn't have id, get user ID from email by querying database
+  let userId = token?.id as string | undefined
+  let userEmail = token?.email as string | undefined
+  
+  // Fallback: get email from cookie if token doesn't have it
+  if (!userEmail && req.headers.cookie) {
+    const emailMatch = req.headers.cookie.match(/next-auth\.user-email=([^;]+)/)
+    if (emailMatch) {
+      userEmail = decodeURIComponent(emailMatch[1])
+    }
+  }
+  
+  if (!userId && userEmail) {
+    try {
+      const { getUserByEmail } = await import('../../../../lib/auth/mongodb')
+      const dbUser = await getUserByEmail(userEmail)
+      if (dbUser) {
+        userId = dbUser.id
+      }
+    } catch (err) {
+      console.error('[completions/[id]] Error getting user by email:', err)
+    }
+  }
+  
+  if (!userId) {
     return res.status(401).json({ error: 'Unauthorized' })
   }
 
@@ -21,7 +48,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    const deleted = await deleteCompletion(id, session.user.id)
+    const deleted = await deleteCompletion(id, userId)
     if (!deleted) {
       return res.status(404).json({ error: 'Completion not found' })
     }

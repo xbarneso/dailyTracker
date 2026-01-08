@@ -1,9 +1,9 @@
 import { redirect } from 'next/navigation'
-import { getServerSession } from 'next-auth/next'
-import { authOptions } from '@/lib/auth/config'
 
 export default async function Home() {
-  const session = await getServerSession(authOptions)
+  // Always redirect to login for now - session check disabled
+  // TODO: Re-enable session check once working
+  redirect('/login')
 
   if (session) {
     redirect('/dashboard')
