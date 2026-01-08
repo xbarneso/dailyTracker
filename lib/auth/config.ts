@@ -7,7 +7,7 @@ function CredentialsProvider(options: any) {
   return {
     id: "credentials",
     name: options.name || "Credentials",
-    type: "credentials",
+    type: "credentials" as const,
     credentials: options.credentials || {},
     authorize: options.authorize, // Use the authorize function directly, don't wrap it
   }
