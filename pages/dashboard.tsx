@@ -438,8 +438,9 @@ export default function DashboardPage() {
               </div>
             )}
           </div>
-        </div>
-      </main>
+          </div>
+        </main>
+      </div>
     </div>
   )
 }
