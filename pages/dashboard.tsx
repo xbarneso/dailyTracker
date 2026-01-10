@@ -5,6 +5,7 @@ import HabitCard from '../components/habits/HabitCard'
 import HabitForm from '../components/habits/HabitForm'
 import { getTodayDate } from '../lib/utils'
 import { Habit } from '../types'
+import { useNotifications } from '../lib/hooks/useNotifications'
 
 // Importar dinámicamente el componente de gráfico para evitar problemas de SSR
 const CategoryRadarChart = dynamic(() => import('../components/charts/CategoryRadarChart'), {
@@ -30,6 +31,9 @@ export default function DashboardPage() {
     deporte: 0,
     salud: 0,
   })
+
+  // Notifications hook
+  const { isSupported, permission, requestPermission, showNotification } = useNotifications()
 
   useEffect(() => {
     // Session check disabled temporarily
@@ -267,6 +271,49 @@ export default function DashboardPage() {
               + Nuevo Hábito
             </button>
           </div>
+
+          {/* Notification Banner */}
+          {isSupported && !permission.granted && !permission.denied && (
+            <div className="bg-jungle-100 border-2 border-jungle-300 rounded-xl p-4 sm:p-6 shadow-md">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div className="flex items-start gap-3">
+                  <span className="text-3xl">🔔</span>
+                  <div>
+                    <h3 className="font-semibold text-jungle-800 mb-1">
+                      Activa las notificaciones
+                    </h3>
+                    <p className="text-sm text-jungle-700">
+                      Recibe recordatorios en tu móvil para no olvidar tus hábitos
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={async () => {
+                    const granted = await requestPermission()
+                    if (granted) {
+                      showNotification({
+                        title: '¡Notificaciones activadas! 🎉',
+                        body: 'Te enviaremos recordatorios para tus hábitos',
+                      })
+                    }
+                  }}
+                  className="w-full sm:w-auto bg-jungle-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-jungle-700 transition whitespace-nowrap"
+                >
+                  Activar ahora
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Success message for granted notifications */}
+          {permission.granted && (
+            <div className="bg-green-50 border-2 border-green-300 rounded-xl p-4 flex items-center gap-3">
+              <span className="text-2xl">✅</span>
+              <p className="text-sm text-green-800 font-medium">
+                Las notificaciones están activadas. Recibirás recordatorios para tus hábitos.
+              </p>
+            </div>
+          )}
 
           {/* Metrics Cards and Radar Chart */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

@@ -14,6 +14,8 @@ export interface Habit {
   end_time?: string // HH:MM format
   icon?: string // Emoji icon
   category?: 'desarrollo_personal' | 'deporte' | 'salud'
+  notifications_enabled?: boolean
+  reminder_time?: string // HH:MM format
   created_at?: Date
   updated_at?: Date
 }

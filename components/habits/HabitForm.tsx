@@ -23,6 +23,8 @@ export default function HabitForm({
   const [endTime, setEndTime] = useState('18:00')
   const [icon, setIcon] = useState('🌱')
   const [category, setCategory] = useState<HabitCategory>('desarrollo_personal')
+  const [notificationsEnabled, setNotificationsEnabled] = useState(false)
+  const [reminderTime, setReminderTime] = useState('09:00')
 
   const availableIcons = [
     '🌱', '🌿', '🌳', '🌲', '🌵', '🌴', '🍀', '🌺', '🌻', '🌷', '🌸', '🌼',
@@ -49,6 +51,8 @@ export default function HabitForm({
       setEndTime(habit.end_time || '18:00')
       setIcon(habit.icon || '🌱')
       setCategory(habit.category || 'desarrollo_personal')
+      setNotificationsEnabled(habit.notifications_enabled || false)
+      setReminderTime(habit.reminder_time || '09:00')
     }
   }, [habit])
 
@@ -64,6 +68,8 @@ export default function HabitForm({
       end_time: !allDay ? endTime : undefined,
       icon,
       category,
+      notifications_enabled: notificationsEnabled,
+      reminder_time: notificationsEnabled ? reminderTime : undefined,
     })
   }
 
@@ -230,6 +236,46 @@ export default function HabitForm({
                   className="w-full px-2 sm:px-3 py-2 border border-jungle-300 rounded-lg focus:ring-2 focus:ring-jungle-500 focus:border-transparent outline-none text-sm"
                 />
               </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Notifications Section */}
+      {frequency !== 'once' && (
+        <div className="space-y-3 p-3 sm:p-4 bg-jungle-50 rounded-lg border border-jungle-200">
+          <div>
+            <label className="flex items-center space-x-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={notificationsEnabled}
+                onChange={(e) => setNotificationsEnabled(e.target.checked)}
+                className="w-4 h-4 text-jungle-600 border-jungle-300 rounded focus:ring-jungle-500"
+              />
+              <span className="text-sm font-medium text-jungle-700 flex items-center">
+                🔔 Activar recordatorios
+              </span>
+            </label>
+            <p className="mt-1 text-xs text-jungle-600 ml-6">
+              Recibe notificaciones en tu móvil para recordarte este hábito
+            </p>
+          </div>
+
+          {notificationsEnabled && (
+            <div>
+              <label htmlFor="reminderTime" className="block text-sm font-medium text-jungle-700 mb-1">
+                ⏰ Hora del recordatorio
+              </label>
+              <input
+                id="reminderTime"
+                type="time"
+                value={reminderTime}
+                onChange={(e) => setReminderTime(e.target.value)}
+                className="w-full px-3 sm:px-4 py-2 border border-jungle-300 rounded-lg focus:ring-2 focus:ring-jungle-500 focus:border-transparent outline-none text-sm"
+              />
+              <p className="mt-1 text-xs text-jungle-600">
+                Te enviaremos una notificación a esta hora cada día
+              </p>
             </div>
           )}
         </div>

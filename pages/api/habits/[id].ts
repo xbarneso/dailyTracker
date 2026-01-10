@@ -14,6 +14,8 @@ const habitUpdateSchema = z.object({
   end_time: z.string().regex(/^([0-1][0-9]|2[0-3]):[0-5][0-9]$/).optional(),
   icon: z.string().optional(),
   category: z.enum(['desarrollo_personal', 'deporte', 'salud']).optional(),
+  notifications_enabled: z.boolean().optional(),
+  reminder_time: z.string().regex(/^([0-1][0-9]|2[0-3]):[0-5][0-9]$/).optional(),
 })
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {

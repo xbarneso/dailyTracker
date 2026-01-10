@@ -13,6 +13,8 @@ export interface Habit {
   end_time?: string; // HH:MM format - end of time range
   icon?: string; // Emoji icon for the habit
   category?: HabitCategory; // Category: desarrollo_personal, deporte, salud
+  notifications_enabled?: boolean; // Enable notifications for this habit
+  reminder_time?: string; // HH:MM format - custom reminder time
   created_at?: string;
   updated_at?: string;
 }
@@ -28,7 +30,9 @@ export interface HabitCompletion {
 export interface UserSettings {
   user_id: string;
   email_notifications_enabled: boolean;
-  notification_time?: string; // HH:MM format
+  push_notifications_enabled?: boolean; // Enable push notifications
+  notification_time?: string; // HH:MM format - daily reminder time
+  evening_reminder_time?: string; // HH:MM format - evening summary time
   created_at?: string;
   updated_at?: string;
 }
