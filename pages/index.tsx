@@ -2,17 +2,17 @@ import { useEffect } from 'react'
 import { useSession } from 'next-auth/client'
 
 export default function Home() {
-  const { data: session, status } = useSession()
+  const [session, loading] = useSession()
 
   useEffect(() => {
-    if (status === 'loading') return
+    if (loading) return
     
     if (session) {
       window.location.href = '/dashboard'
     } else {
       window.location.href = '/login'
     }
-  }, [session, status])
+  }, [session, loading])
 
   return (
     <div className="min-h-screen flex items-center justify-center">
