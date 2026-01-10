@@ -5,6 +5,7 @@ declare module 'mongodb' {
   }
   
   export interface Db {
+    databaseName: string
     collection<T = any>(name: string): Collection<T>
     command(command: any): Promise<any>
     listCollections(): Cursor<any>
