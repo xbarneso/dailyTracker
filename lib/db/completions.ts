@@ -35,7 +35,7 @@ export async function getCompletions(filters: {
     .sort({ date: -1 })
     .toArray()
   
-  return results.map(c => ({
+  return results.map((c: any) => ({
     ...c,
     id: c._id?.toString(),
     completed_at: c.completed_at?.toISOString(),

@@ -67,13 +67,13 @@ export const authOptions: NextAuthOptions = {
       }
       return token
     },
-    async session(session, token) {
+    async session(session: any, token: any) {
       // Simplified session callback - always return valid object
       if (!session) {
         return {
           user: { email: null },
           expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
-        }
+        } as any
       }
       
       if (!session.user) {

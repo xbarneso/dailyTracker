@@ -25,14 +25,14 @@ if (process.env.NODE_ENV === 'development') {
 
   if (!globalWithMongo._mongoClientPromise) {
     client = new MongoClient(defaultUri, options)
-    globalWithMongo._mongoClientPromise = client.connect().catch((err) => {
+    globalWithMongo._mongoClientPromise = client.connect().catch((err: any) => {
       console.error('MongoDB connection error:', err)
       console.error('Connection string:', defaultUri.replace(/:[^:@]+@/, ':****@')) // Hide password
       // Don't throw, return a rejected promise that can be handled
       return Promise.reject(err)
     })
   }
-  clientPromise = globalWithMongo._mongoClientPromise
+  clientPromise = globalWithMongo._mongoClientPromise!
 } else {
   // In production mode, it's best to not use a global variable.
   client = new MongoClient(defaultUri, options)

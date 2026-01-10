@@ -1,7 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 import { getToken } from 'next-auth/jwt'
-import { authOptions } from '../../../../lib/auth/config'
-import { deleteCompletion } from '../../../../lib/db/completions'
+import { authOptions } from '../../../lib/auth/config'
+import { deleteCompletion } from '../../../lib/db/completions'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const token = await getToken({ 
@@ -23,7 +23,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   
   if (!userId && userEmail) {
     try {
-      const { getUserByEmail } = await import('../../../../lib/auth/mongodb')
+      const { getUserByEmail } = await import('../../../lib/auth/mongodb')
       const dbUser = await getUserByEmail(userEmail)
       if (dbUser) {
         userId = dbUser.id

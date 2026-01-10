@@ -26,7 +26,7 @@ export async function getHabits(userId: string) {
     .sort({ created_at: -1 })
     .toArray()
   
-  return results.map(h => ({
+  return results.map((h: any) => ({
     ...h,
     id: h._id?.toString(),
     created_at: h.created_at?.toISOString(),

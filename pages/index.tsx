@@ -1,20 +1,18 @@
 import { useEffect } from 'react'
-import { useRouter } from 'next/router'
 import { useSession } from 'next-auth/client'
 
 export default function Home() {
   const { data: session, status } = useSession()
-  const router = useRouter()
 
   useEffect(() => {
     if (status === 'loading') return
     
     if (session) {
-      router.push('/dashboard')
+      window.location.href = '/dashboard'
     } else {
-      router.push('/login')
+      window.location.href = '/login'
     }
-  }, [session, status, router])
+  }, [session, status])
 
   return (
     <div className="min-h-screen flex items-center justify-center">
