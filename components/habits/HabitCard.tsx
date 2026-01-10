@@ -44,10 +44,10 @@ export default function HabitCard({
 
   return (
     <div
-      className={`bg-white rounded-xl shadow-md p-4 sm:p-6 border-2 transition-all ${
+      className={`bg-white/95 backdrop-blur-sm rounded-xl shadow-2xl p-4 sm:p-6 border-2 transition-all ${
         completed
-          ? 'border-jungle-400 bg-jungle-50'
-          : 'border-jungle-200 hover:border-jungle-300'
+          ? 'border-jungle-400 bg-jungle-100/90'
+          : 'border-jungle-300/30 hover:border-jungle-400/50'
       } ${isDeleting ? 'opacity-50' : ''}`}
     >
       <div className="flex items-start justify-between mb-3 sm:mb-4">

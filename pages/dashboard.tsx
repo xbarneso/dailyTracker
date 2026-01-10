@@ -251,16 +251,39 @@ export default function DashboardPage() {
   })
 
   return (
-    <div className="min-h-screen bg-jungle-50">
-      <Navbar />
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="space-y-8">
+    <div className="min-h-screen relative">
+      {/* Jungle background */}
+      <div 
+        className="fixed inset-0 z-0"
+        style={{
+          backgroundImage: `
+            linear-gradient(rgba(5, 150, 105, 0.85), rgba(16, 185, 129, 0.75)),
+            url('https://images.unsplash.com/photo-1511497584788-876760111969?q=80&w=2000&auto=format&fit=crop')
+          `,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundAttachment: 'fixed',
+        }}
+      />
+      
+      {/* Overlay pattern */}
+      <div 
+        className="fixed inset-0 z-0 opacity-10"
+        style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23000000' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+        }}
+      />
+      
+      <div className="relative z-10">
+        <Navbar />
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="space-y-8">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
-              <h1 className="text-3xl sm:text-4xl font-bold text-jungle-800 mb-2">
+              <h1 className="text-3xl sm:text-4xl font-bold text-white drop-shadow-2xl mb-2">
                 🌿 Dashboard
               </h1>
-              <p className="text-sm sm:text-base text-jungle-600">
+              <p className="text-sm sm:text-base text-white/90 drop-shadow-lg">
                 {new Date().toLocaleDateString('es-ES', {
                   weekday: 'long',
                   year: 'numeric',
@@ -282,7 +305,7 @@ export default function DashboardPage() {
 
           {/* Notification Banner */}
           {isSupported && !permission.granted && !permission.denied && (
-            <div className="bg-jungle-100 border-2 border-jungle-300 rounded-xl p-4 sm:p-6 shadow-md">
+            <div className="bg-white/95 backdrop-blur-sm border-2 border-jungle-400/50 rounded-xl p-4 sm:p-6 shadow-2xl">
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div className="flex items-start gap-3">
                   <span className="text-3xl">🔔</span>
@@ -327,17 +350,17 @@ export default function DashboardPage() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Metrics Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-1 gap-6">
-              <div className="bg-white rounded-xl shadow-md p-4 sm:p-6 border-2 border-jungle-200">
+              <div className="bg-white/95 backdrop-blur-sm rounded-xl shadow-2xl p-4 sm:p-6 border-2 border-jungle-300/30">
                 <div className="text-2xl sm:text-3xl mb-2">🌱</div>
                 <div className="text-xl sm:text-2xl font-bold text-jungle-800">{metrics.total_habits}</div>
                 <div className="text-sm sm:text-base text-jungle-600">Total Hábitos</div>
               </div>
-              <div className="bg-white rounded-xl shadow-md p-4 sm:p-6 border-2 border-jungle-200">
+              <div className="bg-white/95 backdrop-blur-sm rounded-xl shadow-2xl p-4 sm:p-6 border-2 border-jungle-300/30">
                 <div className="text-2xl sm:text-3xl mb-2">✅</div>
                 <div className="text-xl sm:text-2xl font-bold text-jungle-800">{metrics.completed_today}</div>
                 <div className="text-sm sm:text-base text-jungle-600">Completados Hoy</div>
               </div>
-              <div className="bg-white rounded-xl shadow-md p-4 sm:p-6 border-2 border-jungle-200">
+              <div className="bg-white/95 backdrop-blur-sm rounded-xl shadow-2xl p-4 sm:p-6 border-2 border-jungle-300/30">
                 <div className="text-2xl sm:text-3xl mb-2">📊</div>
                 <div className="text-xl sm:text-2xl font-bold text-jungle-800">
                   {Math.round(metrics.completion_rate)}%
@@ -347,7 +370,7 @@ export default function DashboardPage() {
             </div>
 
             {/* Radar Chart */}
-            <div className="lg:col-span-2 bg-white rounded-xl shadow-md p-6 border-2 border-jungle-200">
+            <div className="lg:col-span-2 bg-white/95 backdrop-blur-sm rounded-xl shadow-2xl p-6 border-2 border-jungle-300/30">
               <h3 className="text-xl sm:text-2xl font-bold text-jungle-800 mb-4">
                 Hábitos Completados por Categoría
               </h3>
@@ -363,8 +386,8 @@ export default function DashboardPage() {
 
           {/* Habit Form Modal */}
           {showForm && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-start sm:items-center justify-center p-0 sm:p-4 z-50 overflow-y-auto">
-              <div className="bg-white rounded-t-xl sm:rounded-xl shadow-2xl p-4 sm:p-6 w-full sm:max-w-lg sm:my-8 min-h-screen sm:min-h-0">
+            <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-start sm:items-center justify-center p-0 sm:p-4 z-50 overflow-y-auto">
+              <div className="bg-white/98 backdrop-blur-md rounded-t-xl sm:rounded-xl shadow-2xl p-4 sm:p-6 w-full sm:max-w-lg sm:my-8 min-h-screen sm:min-h-0">
                 <div className="sticky top-0 bg-white pb-3 sm:pb-4 border-b border-jungle-200 mb-4 -mx-4 sm:-mx-6 px-4 sm:px-6 pt-4 sm:pt-0">
                   <h2 className="text-xl sm:text-2xl font-bold text-jungle-800">
                     {editingHabit ? 'Editar Hábito' : 'Nuevo Hábito'}
@@ -386,9 +409,9 @@ export default function DashboardPage() {
 
           {/* Habits List */}
           <div>
-            <h2 className="text-2xl font-bold text-jungle-800 mb-4">Hábitos de Hoy</h2>
+            <h2 className="text-2xl font-bold text-white drop-shadow-lg mb-4">Hábitos de Hoy</h2>
             {todayHabits.length === 0 ? (
-              <div className="bg-white rounded-xl shadow-md p-12 text-center border-2 border-jungle-200">
+              <div className="bg-white/95 backdrop-blur-sm rounded-xl shadow-2xl p-12 text-center border-2 border-jungle-300/30">
                 <div className="text-6xl mb-4">🌿</div>
                 <p className="text-jungle-600 text-lg mb-4">
                   No tienes hábitos configurados aún
