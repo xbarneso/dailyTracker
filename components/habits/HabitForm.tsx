@@ -68,19 +68,19 @@ export default function HabitForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
       {/* Icon Selector */}
       <div>
-        <label className="block text-sm font-medium text-jungle-700 mb-2">
+        <label className="block text-sm font-medium text-jungle-700 mb-1 sm:mb-2">
           Icono *
         </label>
-        <div className="grid grid-cols-8 sm:grid-cols-10 gap-2 max-h-40 overflow-y-auto p-2 bg-jungle-50 rounded-lg border border-jungle-200">
+        <div className="grid grid-cols-8 sm:grid-cols-10 gap-1 sm:gap-2 max-h-32 sm:max-h-40 overflow-y-auto p-2 bg-jungle-50 rounded-lg border border-jungle-200">
           {availableIcons.map((emoji) => (
             <button
               key={emoji}
               type="button"
               onClick={() => setIcon(emoji)}
-              className={`text-2xl sm:text-3xl p-2 rounded-lg transition-all ${
+              className={`text-xl sm:text-2xl p-1 sm:p-2 rounded-lg transition-all ${
                 icon === emoji
                   ? 'bg-jungle-600 scale-110 ring-2 ring-jungle-400'
                   : 'bg-white hover:bg-jungle-100 hover:scale-105'
@@ -90,14 +90,14 @@ export default function HabitForm({
             </button>
           ))}
         </div>
-        <p className="mt-2 text-xs text-jungle-600">
-          Icono seleccionado: <span className="text-2xl">{icon}</span>
+        <p className="mt-1 sm:mt-2 text-xs text-jungle-600">
+          Icono seleccionado: <span className="text-xl sm:text-2xl">{icon}</span>
         </p>
       </div>
 
       {/* Category Selector */}
       <div>
-        <label htmlFor="category" className="block text-sm font-medium text-jungle-700 mb-2">
+        <label htmlFor="category" className="block text-sm font-medium text-jungle-700 mb-1 sm:mb-2">
           Categoría *
         </label>
         <select
@@ -105,7 +105,7 @@ export default function HabitForm({
           value={category}
           onChange={(e) => setCategory(e.target.value as HabitCategory)}
           required
-          className="w-full px-4 py-2 border border-jungle-300 rounded-lg focus:ring-2 focus:ring-jungle-500 focus:border-transparent outline-none"
+          className="w-full px-3 sm:px-4 py-2 border border-jungle-300 rounded-lg focus:ring-2 focus:ring-jungle-500 focus:border-transparent outline-none"
         >
           <option value="desarrollo_personal">📚 Desarrollo Personal</option>
           <option value="deporte">💪 Deporte</option>
@@ -114,7 +114,7 @@ export default function HabitForm({
       </div>
 
       <div>
-        <label htmlFor="name" className="block text-sm font-medium text-jungle-700 mb-2">
+        <label htmlFor="name" className="block text-sm font-medium text-jungle-700 mb-1 sm:mb-2">
           Nombre del Hábito *
         </label>
         <input
@@ -123,27 +123,27 @@ export default function HabitForm({
           value={name}
           onChange={(e) => setName(e.target.value)}
           required
-          className="w-full px-4 py-2 border border-jungle-300 rounded-lg focus:ring-2 focus:ring-jungle-500 focus:border-transparent outline-none"
+          className="w-full px-3 sm:px-4 py-2 border border-jungle-300 rounded-lg focus:ring-2 focus:ring-jungle-500 focus:border-transparent outline-none"
           placeholder="Ej: Hacer ejercicio"
         />
       </div>
 
       <div>
-        <label htmlFor="description" className="block text-sm font-medium text-jungle-700 mb-2">
+        <label htmlFor="description" className="block text-sm font-medium text-jungle-700 mb-1 sm:mb-2">
           Descripción
         </label>
         <textarea
           id="description"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          rows={3}
-          className="w-full px-4 py-2 border border-jungle-300 rounded-lg focus:ring-2 focus:ring-jungle-500 focus:border-transparent outline-none"
+          rows={2}
+          className="w-full px-3 sm:px-4 py-2 border border-jungle-300 rounded-lg focus:ring-2 focus:ring-jungle-500 focus:border-transparent outline-none"
           placeholder="Descripción opcional del hábito"
         />
       </div>
 
       <div>
-        <label htmlFor="frequency" className="block text-sm font-medium text-jungle-700 mb-2">
+        <label htmlFor="frequency" className="block text-sm font-medium text-jungle-700 mb-1 sm:mb-2">
           Frecuencia *
         </label>
         <select
@@ -156,7 +156,7 @@ export default function HabitForm({
             }
           }}
           required
-          className="w-full px-4 py-2 border border-jungle-300 rounded-lg focus:ring-2 focus:ring-jungle-500 focus:border-transparent outline-none"
+          className="w-full px-3 sm:px-4 py-2 border border-jungle-300 rounded-lg focus:ring-2 focus:ring-jungle-500 focus:border-transparent outline-none"
         >
           <option value="daily">Diario</option>
           <option value="once">Sólo Hoy (Una vez)</option>
@@ -172,7 +172,7 @@ export default function HabitForm({
 
       {(frequency === 'weekly' || frequency === 'monthly') && (
         <div>
-          <label htmlFor="targetDays" className="block text-sm font-medium text-jungle-700 mb-2">
+          <label htmlFor="targetDays" className="block text-sm font-medium text-jungle-700 mb-1 sm:mb-2">
             Días objetivo {frequency === 'weekly' ? '(por semana)' : '(por mes)'}
           </label>
           <input
@@ -182,14 +182,14 @@ export default function HabitForm({
             max={frequency === 'weekly' ? '7' : '31'}
             value={targetDays || ''}
             onChange={(e) => setTargetDays(e.target.value ? parseInt(e.target.value) : undefined)}
-            className="w-full px-4 py-2 border border-jungle-300 rounded-lg focus:ring-2 focus:ring-jungle-500 focus:border-transparent outline-none"
+            className="w-full px-3 sm:px-4 py-2 border border-jungle-300 rounded-lg focus:ring-2 focus:ring-jungle-500 focus:border-transparent outline-none"
           />
         </div>
       )}
 
       {/* Time Range Options */}
       {(frequency === 'daily' || frequency === 'once') && (
-        <div className="space-y-4 p-4 bg-jungle-50 rounded-lg">
+        <div className="space-y-3 p-3 sm:p-4 bg-jungle-50 rounded-lg">
           <div>
             <label className="flex items-center space-x-2 cursor-pointer">
               <input
@@ -205,9 +205,9 @@ export default function HabitForm({
           </div>
 
           {!allDay && (
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-3">
               <div>
-                <label htmlFor="startTime" className="block text-sm font-medium text-jungle-700 mb-2">
+                <label htmlFor="startTime" className="block text-sm font-medium text-jungle-700 mb-1">
                   Hora de inicio
                 </label>
                 <input
@@ -215,11 +215,11 @@ export default function HabitForm({
                   type="time"
                   value={startTime}
                   onChange={(e) => setStartTime(e.target.value)}
-                  className="w-full px-4 py-2 border border-jungle-300 rounded-lg focus:ring-2 focus:ring-jungle-500 focus:border-transparent outline-none"
+                  className="w-full px-2 sm:px-3 py-2 border border-jungle-300 rounded-lg focus:ring-2 focus:ring-jungle-500 focus:border-transparent outline-none text-sm"
                 />
               </div>
               <div>
-                <label htmlFor="endTime" className="block text-sm font-medium text-jungle-700 mb-2">
+                <label htmlFor="endTime" className="block text-sm font-medium text-jungle-700 mb-1">
                   Hora de fin
                 </label>
                 <input
@@ -227,7 +227,7 @@ export default function HabitForm({
                   type="time"
                   value={endTime}
                   onChange={(e) => setEndTime(e.target.value)}
-                  className="w-full px-4 py-2 border border-jungle-300 rounded-lg focus:ring-2 focus:ring-jungle-500 focus:border-transparent outline-none"
+                  className="w-full px-2 sm:px-3 py-2 border border-jungle-300 rounded-lg focus:ring-2 focus:ring-jungle-500 focus:border-transparent outline-none text-sm"
                 />
               </div>
             </div>
@@ -235,18 +235,18 @@ export default function HabitForm({
         </div>
       )}
 
-      <div className="flex space-x-3 pt-4">
+      <div className="flex space-x-3 pt-2 sm:pt-4 sticky bottom-0 bg-white pb-2 sm:pb-0 -mx-4 sm:-mx-0 px-4 sm:px-0 border-t sm:border-t-0 border-jungle-200">
         <button
           type="submit"
           disabled={isLoading || !name}
-          className="flex-1 bg-jungle-600 text-white py-2 px-4 rounded-lg font-semibold hover:bg-jungle-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+          className="flex-1 bg-jungle-600 text-white py-2.5 sm:py-3 px-4 rounded-lg font-semibold hover:bg-jungle-700 transition disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
         >
           {isLoading ? 'Guardando...' : habit ? 'Actualizar' : 'Crear'}
         </button>
         <button
           type="button"
           onClick={onCancel}
-          className="flex-1 bg-jungle-100 text-jungle-700 py-2 px-4 rounded-lg font-semibold hover:bg-jungle-200 transition"
+          className="flex-1 bg-jungle-100 text-jungle-700 py-2.5 sm:py-3 px-4 rounded-lg font-semibold hover:bg-jungle-200 transition text-sm sm:text-base"
         >
           Cancelar
         </button>

@@ -308,19 +308,23 @@ export default function DashboardPage() {
 
           {/* Habit Form Modal */}
           {showForm && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-2 sm:p-4 z-50">
-              <div className="bg-white rounded-xl shadow-2xl p-4 sm:p-8 max-w-md w-full max-h-[95vh] sm:max-h-[90vh] overflow-y-auto">
-                <h2 className="text-xl sm:text-2xl font-bold text-jungle-800 mb-4 sm:mb-6">
-                  {editingHabit ? 'Editar Hábito' : 'Nuevo Hábito'}
-                </h2>
-                <HabitForm
-                  habit={editingHabit || undefined}
-                  onSubmit={editingHabit ? handleUpdateHabit : handleCreateHabit}
-                  onCancel={() => {
-                    setShowForm(false)
-                    setEditingHabit(null)
-                  }}
-                />
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-start sm:items-center justify-center p-0 sm:p-4 z-50 overflow-y-auto">
+              <div className="bg-white rounded-t-xl sm:rounded-xl shadow-2xl p-4 sm:p-6 w-full sm:max-w-lg sm:my-8 min-h-screen sm:min-h-0">
+                <div className="sticky top-0 bg-white pb-3 sm:pb-4 border-b border-jungle-200 mb-4 -mx-4 sm:-mx-6 px-4 sm:px-6 pt-4 sm:pt-0">
+                  <h2 className="text-xl sm:text-2xl font-bold text-jungle-800">
+                    {editingHabit ? 'Editar Hábito' : 'Nuevo Hábito'}
+                  </h2>
+                </div>
+                <div className="pb-20 sm:pb-0">
+                  <HabitForm
+                    habit={editingHabit || undefined}
+                    onSubmit={editingHabit ? handleUpdateHabit : handleCreateHabit}
+                    onCancel={() => {
+                      setShowForm(false)
+                      setEditingHabit(null)
+                    }}
+                  />
+                </div>
               </div>
             </div>
           )}
