@@ -59,7 +59,7 @@ export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   return (
-    <nav className="bg-jungle-800/95 backdrop-blur-md text-white shadow-2xl border-b-2 border-jungle-600/50">
+    <nav className="bg-jungle-700 text-white shadow-lg">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex">
