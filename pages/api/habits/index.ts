@@ -75,7 +75,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const validatedData = habitSchema.parse(req.body)
       const habit = await createHabit({
         user_id: userId,
-        ...validatedData,
+        name: validatedData.name,
+        frequency: validatedData.frequency,
+        description: validatedData.description,
+        target_days: validatedData.target_days,
+        all_day: validatedData.all_day,
+        start_time: validatedData.start_time,
+        end_time: validatedData.end_time,
+        icon: validatedData.icon,
+        category: validatedData.category,
       })
       return res.status(201).json({ habit })
     } catch (error: any) {
