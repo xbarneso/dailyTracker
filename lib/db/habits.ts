@@ -9,6 +9,7 @@ export interface Habit {
   description?: string
   frequency: 'daily' | 'weekly' | 'monthly' | 'once'
   target_days?: number
+  selected_days?: string[] // Days of the week: monday, tuesday, etc.
   all_day?: boolean
   start_time?: string // HH:MM format
   end_time?: string // HH:MM format

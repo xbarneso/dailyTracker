@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Habit, HabitFrequency, HabitCategory } from '../../types'
+import { Habit, HabitFrequency, HabitCategory, DayOfWeek } from '../../types'
 
 interface HabitFormProps {
   habit?: Habit
@@ -25,6 +25,19 @@ export default function HabitForm({
   const [category, setCategory] = useState<HabitCategory>('desarrollo_personal')
   const [notificationsEnabled, setNotificationsEnabled] = useState(false)
   const [reminderTime, setReminderTime] = useState('09:00')
+  const [selectedDays, setSelectedDays] = useState<DayOfWeek[]>([
+    'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'
+  ])
+
+  const daysOfWeek: { value: DayOfWeek; label: string; short: string }[] = [
+    { value: 'monday', label: 'Lunes', short: 'L' },
+    { value: 'tuesday', label: 'Martes', short: 'M' },
+    { value: 'wednesday', label: 'Miércoles', short: 'X' },
+    { value: 'thursday', label: 'Jueves', short: 'J' },
+    { value: 'friday', label: 'Viernes', short: 'V' },
+    { value: 'saturday', label: 'Sábado', short: 'S' },
+    { value: 'sunday', label: 'Domingo', short: 'D' },
+  ]
 
   const availableIcons = [
     '🌱', '🌿', '🌳', '🌲', '🌵', '🌴', '🍀', '🌺', '🌻', '🌷', '🌸', '🌼',
@@ -53,6 +66,9 @@ export default function HabitForm({
       setCategory(habit.category || 'desarrollo_personal')
       setNotificationsEnabled(habit.notifications_enabled || false)
       setReminderTime(habit.reminder_time || '09:00')
+      setSelectedDays(habit.selected_days || [
+        'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'
+      ])
     }
   }, [habit])
 
@@ -63,6 +79,7 @@ export default function HabitForm({
       description: description || undefined,
       frequency,
       target_days: frequency !== 'daily' && frequency !== 'once' ? targetDays : undefined,
+      selected_days: frequency !== 'once' ? selectedDays : undefined,
       all_day: allDay,
       start_time: !allDay ? startTime : undefined,
       end_time: !allDay ? endTime : undefined,
@@ -71,6 +88,30 @@ export default function HabitForm({
       notifications_enabled: notificationsEnabled,
       reminder_time: notificationsEnabled ? reminderTime : undefined,
     })
+  }
+
+  const toggleDay = (day: DayOfWeek) => {
+    setSelectedDays(prev => {
+      if (prev.includes(day)) {
+        // Don't allow removing all days
+        if (prev.length === 1) return prev
+        return prev.filter(d => d !== day)
+      } else {
+        return [...prev, day]
+      }
+    })
+  }
+
+  const selectWeekdays = () => {
+    setSelectedDays(['monday', 'tuesday', 'wednesday', 'thursday', 'friday'])
+  }
+
+  const selectWeekend = () => {
+    setSelectedDays(['saturday', 'sunday'])
+  }
+
+  const selectAllDays = () => {
+    setSelectedDays(['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'])
   }
 
   return (
@@ -175,6 +216,66 @@ export default function HabitForm({
           </p>
         )}
       </div>
+
+      {/* Day Selector for daily and weekly */}
+      {(frequency === 'daily' || frequency === 'weekly') && (
+        <div>
+          <label className="block text-sm font-medium text-jungle-700 mb-2">
+            📅 Días de la semana *
+          </label>
+          
+          {/* Quick selection buttons */}
+          <div className="flex flex-wrap gap-2 mb-3">
+            <button
+              type="button"
+              onClick={selectAllDays}
+              className="px-3 py-1 text-xs bg-jungle-100 text-jungle-700 rounded-lg hover:bg-jungle-200 transition"
+            >
+              Todos
+            </button>
+            <button
+              type="button"
+              onClick={selectWeekdays}
+              className="px-3 py-1 text-xs bg-jungle-100 text-jungle-700 rounded-lg hover:bg-jungle-200 transition"
+            >
+              Lun-Vie
+            </button>
+            <button
+              type="button"
+              onClick={selectWeekend}
+              className="px-3 py-1 text-xs bg-jungle-100 text-jungle-700 rounded-lg hover:bg-jungle-200 transition"
+            >
+              Fin de semana
+            </button>
+          </div>
+
+          {/* Day buttons */}
+          <div className="grid grid-cols-7 gap-2">
+            {daysOfWeek.map((day) => (
+              <button
+                key={day.value}
+                type="button"
+                onClick={() => toggleDay(day.value)}
+                className={`aspect-square flex flex-col items-center justify-center p-2 rounded-lg font-semibold transition-all text-xs sm:text-sm ${
+                  selectedDays.includes(day.value)
+                    ? 'bg-jungle-600 text-white ring-2 ring-jungle-400 scale-105'
+                    : 'bg-jungle-100 text-jungle-600 hover:bg-jungle-200'
+                }`}
+                title={day.label}
+              >
+                <span className="hidden sm:block">{day.short}</span>
+                <span className="sm:hidden text-[10px]">{day.short}</span>
+              </button>
+            ))}
+          </div>
+          <p className="mt-2 text-xs text-jungle-600">
+            {frequency === 'daily' 
+              ? `Este hábito se registrará solo los días seleccionados (${selectedDays.length}/7)`
+              : `Este hábito se puede completar solo los días seleccionados (${selectedDays.length}/7)`
+            }
+          </p>
+        </div>
+      )}
 
       {(frequency === 'weekly' || frequency === 'monthly') && (
         <div>

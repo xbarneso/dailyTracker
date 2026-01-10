@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Habit } from '../../types'
-import { getTodayDate } from '../../lib/utils'
+import { getTodayDate, getDayLabel } from '../../lib/utils'
 
 interface HabitCardProps {
   habit: Habit
@@ -108,6 +108,12 @@ export default function HabitCard({
         {habit.all_day && (habit.frequency === 'daily' || habit.frequency === 'once') && (
           <span className="text-xs text-jungle-600 bg-green-50 px-2 py-1 rounded">
             Todo el día
+          </span>
+        )}
+        {/* Show selected days if not all days selected */}
+        {habit.selected_days && habit.selected_days.length > 0 && habit.selected_days.length < 7 && (
+          <span className="text-xs text-jungle-600 bg-jungle-50 px-2 py-1 rounded">
+            📅 {habit.selected_days.map(day => getDayLabel(day, true)).join(', ')}
           </span>
         )}
       </div>

@@ -3,7 +3,7 @@ import dynamic from 'next/dynamic'
 import Navbar from '../components/layout/Navbar'
 import HabitCard from '../components/habits/HabitCard'
 import HabitForm from '../components/habits/HabitForm'
-import { getTodayDate } from '../lib/utils'
+import { getTodayDate, isHabitActiveOnDate } from '../lib/utils'
 import { Habit } from '../types'
 import { useNotifications } from '../lib/hooks/useNotifications'
 
@@ -238,7 +238,15 @@ export default function DashboardPage() {
   console.log('[Dashboard] Rendering - loading:', loading, 'habits:', habits.length, 'showForm:', showForm)
 
   const todayHabits = habits.filter((habit) => {
-    if (habit.frequency === 'daily' || habit.frequency === 'once') return true
+    // Filter by frequency
+    if (habit.frequency === 'once') return true
+    if (habit.frequency === 'monthly') return true // Show all monthly habits
+    
+    // For daily and weekly, check if habit is active today
+    if (habit.frequency === 'daily' || habit.frequency === 'weekly') {
+      return isHabitActiveOnDate(habit.selected_days)
+    }
+    
     return true
   })
 

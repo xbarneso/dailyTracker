@@ -3,7 +3,7 @@ import { getToken } from 'next-auth/jwt'
 import { authOptions } from '../../lib/auth/config'
 import { getHabits } from '../../lib/db/habits'
 import { getCompletions } from '../../lib/db/completions'
-import { getTodayDate, getDateRange } from '../../lib/utils'
+import { getTodayDate, getDateRange, isHabitActiveOnDate } from '../../lib/utils'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const token = await getToken({ 
@@ -61,21 +61,36 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // Calculate metrics
     const totalHabits = habits.length
-    const completedToday = allCompletions.filter(c => c.date === today).length
     
-    // Calculate completion rate (last 30 days)
+    // Count only habits that should be completed today
+    const habitsActiveToday = habits.filter(h => isHabitActiveOnDate(h.selected_days))
+    const completedToday = allCompletions.filter(c => 
+      c.date === today && 
+      habitsActiveToday.some(h => h.id === c.habit_id)
+    ).length
+    
+    // Calculate completion rate (last 30 days) considering selected days
     const last30Days = getDateRange(30)
     const dailyHabits = habits.filter(h => h.frequency === 'daily')
-    const expectedCompletions = dailyHabits.length * 30
+    
+    // Calculate expected completions only for days when habits should be active
+    let expectedCompletions = 0
+    for (const day of last30Days) {
+      const date = new Date(day)
+      const activeDailyHabits = dailyHabits.filter(h => isHabitActiveOnDate(h.selected_days, date))
+      expectedCompletions += activeDailyHabits.length
+    }
+    
     const actualCompletions = allCompletions.filter(c => 
       last30Days.includes(c.date) && 
       dailyHabits.some(h => h.id === c.habit_id)
     ).length
+    
     const completionRate = expectedCompletions > 0 
       ? (actualCompletions / expectedCompletions) * 100 
       : 0
 
-    // Calculate streaks
+    // Calculate streaks (considering selected days)
     const habitStreaks = habits.map(habit => {
       const habitCompletions = allCompletions
         .filter(c => c.habit_id === habit.id)
@@ -86,16 +101,27 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       let streak = 0
       const todayDate = new Date(today)
       
-      for (let i = 0; i < habitCompletions.length; i++) {
-        const completionDate = new Date(habitCompletions[i])
-        const expectedDate = new Date(todayDate)
-        expectedDate.setDate(expectedDate.getDate() - i)
+      // Only count streak for days when habit should be active
+      let daysBack = 0
+      while (daysBack < habitCompletions.length && daysBack < 365) {
+        const checkDate = new Date(todayDate)
+        checkDate.setDate(checkDate.getDate() - daysBack)
         
-        if (completionDate.toISOString().split('T')[0] === expectedDate.toISOString().split('T')[0]) {
+        // Skip days when habit is not active
+        if (!isHabitActiveOnDate(habit.selected_days, checkDate)) {
+          daysBack++
+          continue
+        }
+        
+        const checkDateStr = checkDate.toISOString().split('T')[0]
+        
+        if (habitCompletions.includes(checkDateStr)) {
           streak++
         } else {
           break
         }
+        
+        daysBack++
       }
 
       return { habit_id: habit.id, streak }

@@ -1,5 +1,6 @@
 export type HabitFrequency = 'daily' | 'weekly' | 'monthly' | 'once';
 export type HabitCategory = 'desarrollo_personal' | 'deporte' | 'salud';
+export type DayOfWeek = 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday' | 'sunday';
 
 export interface Habit {
   id: string;
@@ -8,6 +9,7 @@ export interface Habit {
   description?: string;
   frequency: HabitFrequency;
   target_days?: number; // For weekly/monthly habits
+  selected_days?: DayOfWeek[]; // Specific days of the week for daily/weekly habits
   all_day?: boolean; // If true, habit can be done anytime during the day
   start_time?: string; // HH:MM format - start of time range
   end_time?: string; // HH:MM format - end of time range

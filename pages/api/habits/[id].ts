@@ -9,6 +9,7 @@ const habitUpdateSchema = z.object({
   description: z.string().optional(),
   frequency: z.enum(['daily', 'weekly', 'monthly', 'once']).optional(),
   target_days: z.number().int().positive().optional(),
+  selected_days: z.array(z.enum(['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'])).optional(),
   all_day: z.boolean().optional(),
   start_time: z.string().regex(/^([0-1][0-9]|2[0-3]):[0-5][0-9]$/).optional(),
   end_time: z.string().regex(/^([0-1][0-9]|2[0-3]):[0-5][0-9]$/).optional(),
